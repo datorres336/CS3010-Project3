@@ -1,50 +1,22 @@
 public class Main {
     public static void main(String[] args) {
-        /*double value = 2; //DEBUG CODE
-        System.out.println("Function one value: " + functionOne(value));
-        double a = .36328125;
-        double b = 0.36508344055813474;
-        System.out.println("C value: " + (a+b)/2);
-        System.out.println("Function C value: " + functionOne((a+b)/2));
-        System.out.println("Relative percent error: " + relErrorPercent(a, b));
-
-        double d = 160;
-        System.out.println("Function two value: " + functionTwo(d));
-
-        double debug = b - (functionOne(b)/functionOneDer(b));
-        System.out.println("Newton Raphson c value: " + debug);*/
-
-        
+        double a = 0;
+        double b = 1;
+        double c = b - (functionOne(b)/functionOneDer(b)); //debug code
+        double fOfC = functionOne(c);
+        System.out.printf("C value = %f: \nf(c) = %f: \n", c , fOfC);
+        //bisectionMethod(a,b); //WORKS!!!!!!
+        //falsePositionMethod(a, b); //WORKS!!!!!
+        //newtonRaphsonMethod(a,b); //WORKS!!!!!
+        //secantMethod(a,b); //WORKS!!!!!
     }
 
-    public static double[] rootMethod(double a, double b, int methodVal) {
+    public static double[] bisectionMethod(double a, double b) {
         boolean errorGoalReached = false;
         double [] relativePercentError = new double[100];
         double fOfA = functionOne(a);
         double fOfB = functionOne(b);
-        double c;
-        if (methodVal == 0) {
-            c = (a+b)/2; //bisection method c value;
-        }
-        else if (methodVal == 1) {
-            c = (a * functionOne(b) - b * functionOne(a)) / (functionOne(b) - functionOne(a)); //false position
-            // method c value;
-        }
-        else if (methodVal == 2) {
-            c = b - (functionOne(b)/functionOneDer(b)); //Newton Raphson method, you only need the b value, TAKE CARE OF THIS METHOD ALL IN THIS
-            // BLOCK********
-            for (int i = 0; i < 100 ; i++) {
-                relativePercentError[i] = relErrorPercent(c, b);
-                if (relativePercentError[i] < 1) {
-                    errorGoalReached = true;
-                    return relativePercentError;
-                }
-                c = b - (functionOne(b)/functionOneDer(b));
-            }
-        }
-        else {
-            c = b - functionOne(b) * ((b - a)/(functionOne(b) - functionOne(a))); //Secant method
-        }
+        double c = (a+b)/2;
         double cOldVal;
         double fOfC = functionOne(c);
 
@@ -52,16 +24,84 @@ public class Main {
             if ((fOfC < 0 && fOfA < 0) || (fOfC > 0 && fOfA > 0)) a = c;
             else b = c;
             cOldVal = c;
-            if (methodVal == 0) {
-                c = (a+b)/2; //bisection method c value;
+            c = (a+b)/2;
+            fOfC = functionOne(c);
+
+            relativePercentError[i] = relErrorPercent(c, cOldVal);
+            if (relativePercentError[i] < 1) {
+                errorGoalReached = true;
+                break;
             }
-            else if (methodVal == 1) {
-                c = (a * functionOne(b) - b * functionOne(a)) / (functionOne(b) - functionOne(a)); //false position
-                // method c value;
+        }
+
+        if (errorGoalReached == false) System.out.println("Sorry solution did not converge to desired relative " +
+                "percent error within 100 iterations. ");
+
+        return relativePercentError;
+    }
+
+    public static double[] falsePositionMethod(double a, double b) {
+        boolean errorGoalReached = false;
+        double [] relativePercentError = new double[100];
+        double fOfA = functionOne(a);
+        double fOfB = functionOne(b);
+        double c = (a * functionOne(b) - b * functionOne(a)) / (functionOne(b) - functionOne(a));
+        double cOldVal;
+        double fOfC = functionOne(c);
+
+        for (int i = 0; i < 100; i++) {
+            if ((fOfC < 0 && fOfA < 0) || (fOfC > 0 && fOfA > 0)) a = c;
+            else b = c;
+            cOldVal = c;
+            c = (a * functionOne(b) - b * functionOne(a)) / (functionOne(b) - functionOne(a));
+            fOfC = functionOne(c);
+
+            relativePercentError[i] = relErrorPercent(c, cOldVal);
+            if (relativePercentError[i] < 1) {
+                errorGoalReached = true;
+                break;
             }
-            else if (methodVal == 3) {
-                c = b - functionOne(b) * ((b - a)/(functionOne(b) - functionOne(a))); //Secant method
+        }
+
+        if (errorGoalReached == false) System.out.println("Sorry solution did not converge to desired relative " +
+                "percent error within 100 iterations. ");
+
+        return relativePercentError;
+    }
+
+    public static double[] newtonRaphsonMethod(double a, double b) { //still need to debug this method
+        boolean errorGoalReached = false;
+        double [] relativePercentError = new double[100];
+        double c = b - (functionOne(b)/functionOneDer(b));
+        for (int i = 0; i < 100 ; i++) {
+            relativePercentError[i] = relErrorPercent(c, b);
+            if (relativePercentError[i] < 1) {
+                errorGoalReached = true;
+                return relativePercentError;
             }
+            b = c;
+            c = b - (functionOne(b)/functionOneDer(b));
+        }
+        if (errorGoalReached == false) System.out.println("Sorry solution did not converge to desired relative " +
+                "percent error within 100 iterations. ");
+
+        return relativePercentError;
+    }
+    public static double[] secantMethod(double a, double b) {
+        boolean errorGoalReached = false;
+        double [] relativePercentError = new double[100];
+        double fOfA = functionOne(a);
+        double fOfB = functionOne(b);
+        double c = b - functionOne(b) * ((b - a)/(functionOne(b) - functionOne(a))); //Secant method
+        double cOldVal;
+        double fOfC = functionOne(c);
+
+        for (int i = 0; i < 100; i++) {
+            if ((fOfC < 0 && fOfA < 0) || (fOfC > 0 && fOfA > 0)) a = c;
+            else b = c;
+            cOldVal = c;
+            c = b - functionOne(b) * ((b - a)/(functionOne(b) - functionOne(a))); //Secant method
+            fOfC = functionOne(c);
 
             relativePercentError[i] = relErrorPercent(c, cOldVal);
             if (relativePercentError[i] < 1) {
@@ -88,10 +128,6 @@ public class Main {
     public static double functionTwoDer (double a) {
         return (50*Math.sinh(50/a))/a - Math.cosh(50/a) + 1;
     }
-
-    /*public static double cValue (double a , double b) {
-        return (a+b)/2;
-    }*/
 
     public static double relErrorPercent(double a, double b) {
         return Math.abs(a-b)/Math.abs(a) * 100;
